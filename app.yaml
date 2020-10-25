@@ -1,0 +1,16 @@
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT app:app
+
+runtime_config:
+  python_version: 3
+
+env_variables:
+  CONSUMER_KEY: "<CONSUMER_KEY>"
+  CONSUMER_SECRET: "<CONSUMER_SECRET>"
+  ACCESS_TOKEN_SECRET: "<ACCESS_TOKEN_SECRET>"
+  ACCESS_TOKEN: "<ACCESS_TOKEN>"
+
+automatic_scaling:
+    min_num_instances: 1
+    max_num_instances: 7
