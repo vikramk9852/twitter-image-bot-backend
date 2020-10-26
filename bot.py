@@ -62,9 +62,10 @@ class TwitterHandleWatcher(threading.Thread):
                     media_urls = []
 
                     for media in tweet_media_info:
-                        if media['type'] == 'photo':
-                            media_urls.append(media['media_url_https'])
-                    # media_url = tweet_media_info['media_url_https']
+                        media_urls.append(media['media_url_https'])
+                        
+                    if len(media_urls) == 0:
+                        continue
                     created_at = dateutil.parser.parse(
                         tweet['created_at']).timestamp()
 
