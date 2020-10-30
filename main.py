@@ -3,11 +3,14 @@ import time
 
 from bot import TwitterHandleWatcher
 from helper.logger_helper import initLogger
+from app import initServer
 
 def main():
     initLogger()
     botWatcher = TwitterHandleWatcher(pause=600)
     botWatcher.start()
+
+    initServer()
 
     while True:
         try:
