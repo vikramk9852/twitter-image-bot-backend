@@ -79,9 +79,9 @@ def getUserData():
         return jsonify({"data": "Some error occured"}), 500
 
 
-if __name__ == "__main__":
-    app.run(port=5000)
+# if __name__ == "__main__":
+#     app.run(port=5000)
 
 
-# def initServer():
-#     app.run(debug=True)
+def initServer():
+    app.run(debug=True)
