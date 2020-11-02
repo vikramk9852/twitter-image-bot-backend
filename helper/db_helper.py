@@ -71,7 +71,7 @@ def doesUserExist(user):
     try:
         db = getDB()
         userCollection = db[USER_COLLECTION_NAME]
-        return userCollection.find_one({"_id": user}, {"latestTweetId": 1})
+        return userCollection.find_one({"_id": user}, {"latestTweetId": 1, "_id": 0})
     except Exception as e:
         raise e
 

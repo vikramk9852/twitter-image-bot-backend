@@ -23,11 +23,10 @@ class TwitterWatcher(threading.Thread):
     def run(self):
         while not self._stopping:
             users = db.getAllUsers()
-            for userInfo in users:
-                user = userInfo['_id']
+            for user in users:
 
                 userExists = db.doesUserExist(user)
-                if userExists != None:
+                if userExists != None and 'latestTweetId' in userExists:
                     latestTweetId = userExists['latestTweetId']
                     tweets = self.twitter_api.user_timeline(
                         id=user, count=200, since_id=int(latestTweetId), tweet_mode="extended", trim_user=True)
