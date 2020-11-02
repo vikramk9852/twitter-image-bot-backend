@@ -5,11 +5,11 @@ import json
 import time
 import dateutil.parser
 import urllib.request
-import logging
 import helper.db_helper as db
 from helper.twitter_helper import create_api
+from helper.logger_helper import getLogger
 
-logger = logging.getLogger()
+logger = getLogger("bot")
 
 
 class TwitterWatcher(threading.Thread):
@@ -77,7 +77,7 @@ class TwitterWatcher(threading.Thread):
 
                 logger.info(f"latestTweetId {latestTweetId} for user {user}")
 
-                if len(tweets) > 0 and latestTweetId != 0:
+                if len(tweetObjs) > 0 and latestTweetId != 0:
                     db.insertTweets(user, tweetObjs, latestTweetId)
 
             logger.info("done")
