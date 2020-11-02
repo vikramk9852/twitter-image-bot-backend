@@ -13,12 +13,6 @@ def initFirebase():
     cred = credentials.Certificate(config_cloudstore)
     return firebase_admin.initialize_app(cred)
 
-def getFirestoreDB():
-    if firebase_admin._apps:
-        return firestore.client()
-    initFirebase()
-    return firestore.client()
-
 def getFirebaseAuth():
     if firebase_admin._apps:
         return auth
