@@ -55,8 +55,14 @@ class TwitterWatcher(threading.Thread):
 
                     tweet_media_info = tweet['extended_entities']['media']
                     media_urls = []
+                    video_urls = []
 
                     for media in tweet_media_info:
+                        if media['type'] == 'video':
+                            tweet_type = 'video'
+                            video_urls.append(media['video_info']['variants'][0]['url'])
+                        else:
+                            tweet_type = 'photo'
                         media_urls.append(media['media_url_https'])
 
                     if len(media_urls) == 0:
@@ -68,9 +74,11 @@ class TwitterWatcher(threading.Thread):
                         "_id": tweet_id,
                         "tweet_id": tweet_id,
                         "tweet_media_url": media_urls,
+                        "tweet_video_url": video_urls,
                         "created_at": created_at,
                         "tweet_url": "https://twitter.com/"+user+"/status/"+tweet_id,
                         "tweet_text": tweet['full_text'],
+                        "tweet_type": tweet_type,
                         "user": user
                     })
                     latestTweetId = max(int(latestTweetId), tweet['id'])
