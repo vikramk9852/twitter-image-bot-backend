@@ -58,11 +58,16 @@ class TwitterWatcher(threading.Thread):
                     video_urls = []
 
                     for media in tweet_media_info:
+                        tweet_type = 'photo'
+                        bitrate = 0
                         if media['type'] == 'video':
-                            tweet_type = 'video'
-                            video_urls.append(media['video_info']['variants'][0]['url'])
-                        else:
-                            tweet_type = 'photo'
+                            for variant in media['video_info']['variants']:
+                                if 'bitrate' in variant and bitrate < variant['bitrate']:
+                                    bitrate = variant['bitrate']
+                                    video_url = variant['url']
+                            if bitrate > 0:
+                                tweet_type = 'video'
+                                video_urls.append(video_url)
                         media_urls.append(media['media_url_https'])
 
                     if len(media_urls) == 0:
