@@ -1,16 +1,10 @@
-import threading
+from bot import TwitterWatcher
 import time
 
-from bot import TwitterHandleWatcher
-from helper.logger_helper import initLogger
-from app import initServer
 
-def main():
-    initLogger()
-    botWatcher = TwitterHandleWatcher(pause=600)
+def start():
+    botWatcher = TwitterWatcher(pause=600)
     botWatcher.start()
-
-    initServer()
 
     while True:
         try:
@@ -19,5 +13,6 @@ def main():
             botWatcher.stop()
             break
 
+
 if __name__ == "__main__":
-    main()
+    start()

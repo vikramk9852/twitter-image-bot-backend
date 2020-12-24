@@ -2,9 +2,14 @@ import json
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 from helper.twitter_helper import create_api
-from helper.firebase_helper import getFirestoreDB, getFirebaseAuth
+from helper.firebase_helper import getFirebaseAuth
+from helper.logger_helper import getLogger
 from firebase_admin import firestore
 from flask_cors import CORS, cross_origin
+import helper.db_helper as db
+
+logger = getLogger("server")
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -18,69 +23,66 @@ def search_users(username):
     try:
         auth.verify_id_token(authToken)
     except Exception as e:
+        logger.exception(e)
         return jsonify({"data": "Invalid auth token, make sure you are logged in"}), 500
     twitterApi = create_api()
     searchResults = twitterApi.search_users(username)
     response = []
 
     for user in searchResults:
-        response.append({'name': user._json["name"],
-                         'screen_name': user._json["screen_name"]
-                         })
+        response.append(
+            {
+                'name': user._json["name"],
+                'screen_name': user._json["screen_name"]
+            }
+        )
     return jsonify({"data": response}), 200
 
 
-@app.route('/add', methods=['POST'])
-def add_to_db():
-    twitterApi = create_api()
+@app.route('/addUser', methods=['POST'])
+def addUser():
     requestData = request.get_json()
+    user = requestData['user']
     authToken = request.headers.get('authToken')
-    
+
     try:
         auth = getFirebaseAuth()
         auth.verify_id_token(authToken)
 
-        documentPath = 'tHandles/'+requestData["handle"]
-        db = getFirestoreDB()
-        db.document(documentPath).set({})
+        db.addUser(user)
         return jsonify({"data": "success"}), 200
     except Exception as e:
-        print(e)
+        logger.exception(e)
         return jsonify({"data": "Invalid auth token, make sure you are logged in"}), 500
 
 
-@app.route('/get', methods=['GET'])
-def get_from_db():
-
-    dataPath = request.args.get('dataPath')
-    orderBy = request.args.get('orderBy')
-    startAfter = request.args.get('startAfter')
-    limit = request.args.get('limit')
-    authToken = request.headers.get('authToken')
-    
+@app.route('/getAllUsers', methods=['GET'])
+@cross_origin()
+def getAllUsers():
     try:
-        auth = getFirebaseAuth()
-        # auth.verify_id_token(authToken)
-
-        db = getFirestoreDB()
-        query = db.collection(u'{dataPath}')
-        # if orderBy != None:
-        #     query = query.order_by(orderBy, direction=firestore.Query.DESCENDING)
-        # if startAfter != None:
-        #     query = query.start_after(startAfter)
-        # if limit != None:
-        #     query = query.limit(int(limit))
-
-        data = query.stream()
-        for doc in data:
-            print(f'{doc.id} => {doc.to_dict()}')
-        return jsonify({"data": "success"}), 200
+        users = db.getAllUsers()
+        return jsonify({"data": users}), 200
     except Exception as e:
-        print(e)
-        return jsonify({"data": "Invalid auth token, make sure you are logged in"}), 500
-        
-# if __name__ == "__main__":
-#     app.run(port=5000)
+        logger.exception(e)
+        return jsonify({"data": "Some error occured"}), 500
 
-def initServer():
-    app.run(host='0.0.0.0', port=5000)
+
+@app.route('/getUserData', methods=['GET'])
+@cross_origin()
+def getUserData():
+
+    user = request.args.get('user')
+    pageNo = request.args.get('pageNo')
+    nPerPage = request.args.get('nPerPage')
+    orderBy = request.args.get('orderBy')
+    try:
+        data = db.getUserData(user, pageNo, orderBy, nPerPage)
+        return jsonify({"data": data}), 200
+    except Exception as e:
+        logger.exception(e)
+        return jsonify({"data": "Some error occured"}), 500
+
+
+if __name__ == "__main__":
+    app.run(host='127.0.0.1', port=5000)
+

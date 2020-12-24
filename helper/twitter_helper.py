@@ -1,8 +1,9 @@
 import tweepy
 import logging
 import os
+from helper.logger_helper import getLogger
 
-logger = logging.getLogger()
+logger = getLogger("tweepy")
 
 def create_api():
     consumer_key = os.getenv("CONSUMER_KEY")
